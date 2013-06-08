@@ -1569,10 +1569,16 @@
 		 * @return {Backbone.Model}
 		 */
 		build: function( attributes, options ) {
-			var model = this;
-
 			// 'build' is a possible entrypoint; it's possible no model hierarchy has been determined yet.
 			this.initializeModelHierarchy();
+
+			var model = this.getModel(attributes);
+
+			return new model( attributes, options );
+		},
+
+		getModel: function( attributes ) {
+			var model = this;
 
 			// Determine what type of (sub)model should be built if applicable.
 			// Lookup the proper subModelType in 'this._subModels'.
@@ -1580,11 +1586,11 @@
 				var subModelTypeAttribute = attributes[ this.prototype.subModelTypeAttribute ];
 				var subModelType = this._subModels[ subModelTypeAttribute ];
 				if ( subModelType ) {
-					model = subModelType;
+					model = this.getModel.call( subModelType, attributes );
 				}
 			}
-			
-			return new model( attributes, options );
+
+			return model;
 		},
 
 		/**
